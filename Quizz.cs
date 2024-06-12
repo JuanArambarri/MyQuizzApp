@@ -2,14 +2,56 @@
 
 public class Quizz
 {
-    private Question[] questions;
+    private Question[] _questions;
+    private int _score;
 
     public Quizz(Question[] questions) //the array will be run in another class
     {
-        this.questions = questions;
+        this._questions = questions;
+        _score = 0;
     }
 
-    public void DisplayQuestion(Question question) //should be private. (Made public for testing)
+    public void StartQuizz()
+    {
+        Console.WriteLine("Welcome to the Quiz!");
+        int questionNumber = 1; // Display which question we are at.
+        foreach (Question question in _questions)
+        {
+            Console.WriteLine($"Question {questionNumber}:");
+            DisplayQuestion(question);
+            int userChoice = GetUserChoice();
+            if (question.isCorrectAnswer(userChoice))
+            {
+                _score++;
+                Console.WriteLine("Correct!");
+            }
+            else
+            {
+                Console.WriteLine($"Incorrect! The correct answer was: {question.Answers[question.CorrectAnswerIndex]}");
+            }
+        }
+        DisplayResults();
+    }
+
+    private void DisplayResults()
+    {
+        Console.ForegroundColor = ConsoleColor.Magenta;
+        Console.WriteLine("╔═════════════════════════════════════════════════════════════════════════╗");
+        Console.WriteLine("║                                 Results                                 ║");
+        Console.WriteLine("╚═════════════════════════════════════════════════════════════════════════╝");
+        Console.ResetColor();
+        
+        Console.WriteLine($"Quiz finished. Your score is: {_score} out of {_questions.Length}");
+
+        double percentage = (double)_score / _questions.Length;
+        if (percentage >= 0.6)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Excellent work");
+        }
+    }
+
+    private void DisplayQuestion(Question question) //should be private. (Made public for testing)
     {
         Console.ForegroundColor = ConsoleColor.DarkBlue;
         Console.WriteLine("╔═════════════════════════════════════════════════════════════════════════╗");
@@ -25,5 +67,18 @@ public class Quizz
             Console.ResetColor(); //makes text normal again
             Console.WriteLine($". {question.Answers[i]}");
         }
+    }
+
+    private int GetUserChoice()
+    {
+        Console.Write("Your answer (number): ");
+        string input = Console.ReadLine();
+        int choice = 0;
+        while (!int.TryParse(input, out choice) || choice < 1 || choice > 4)
+        {
+            Console.WriteLine("Invalid input.\n Please enter a number between 1 and 4: ");
+            input = Console.ReadLine();
+        }
+        return choice -1; //Decrementing the user choice to fit [0,1,2,3]
     }
 }
